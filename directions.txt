@@ -1,0 +1,32 @@
+Topics design Water polo game simulator
+
+Purpose 
+Fulfill the need that all water polo fans have been yearning for. A water polo game app!
+It provides a unique single player water polo game experience where any user can play this sport that doesn’t get the love it deserves.
+Target audience
+My target audience is primarily targeted at young adolescents who are interested in aquatic sports. Or people who enjoy sports games and are interested in sports and want to find more types of play. But, it is not limited to any particular demographic or age group. 
+Addresses the lack of water polo games in the sports gaming genre.
+Functionality
+There is a start screen that welcomes the user to the website with some form of greeting. Then you will be prompted with multiple water polo players that you can use.
+Then once you choose a player your player will be in the middle of a water polo pool and the perspective of the user will be behind the player facing towards the goal. There will be a goalie who is treading water to stay afloat. 
+The selected player appears in the water, facing the goal, and the user has three shot options (left, middle, or right)
+The goalie will randomly choose one of the three directions to block, adding an element of surprise.
+User Flow
+
+Greeted with a welcome message and prompted to select a player.
+Once a player is chosen, the game transitions to the shooting screen, where the user selects a shot direction.
+Depending on the goalie’s choice, the shot is either blocked or scored.
+Option to replay the game after each round.
+
+
+Aesthetics 
+Water Polo player 
+Each water polo player will be wearing water polo caps
+Uses water polo-themed graphics, with simplified player and goalie avatars.
+Bold, modern fonts that are easy to read and contribute to the sporty theme.
+
+
+
+
+
+I think that this quote captures the atmosphere that many first and second generation immigrants have to deal with. It forces these people to question every action and puts them in place of fear. I think that this mindset could also act as motivation to never take opportunities for granted. In Candace’s case, this mindset could serve as both a source of strength and a challenge. While she might feel empowered by her parents' hard work and resilience, she may feel the weight or pressure of living up to their hard work and sacrifices, feeling a pressure to succeed and honor their journey.
