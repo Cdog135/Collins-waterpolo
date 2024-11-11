@@ -23,15 +23,15 @@ Manages game state, score, player lives, ad literally everything.
   - `lives` (*int*): Number of lives (missed shots allowed).
   - `isGameOver` (*boolean*): Indicates if the game is over.
   - `roundsPlayed` (*int*): Tracks rounds played, which can be used for post-game statistics.
-  - `selectedDirection` (*String*): The direction the player aims to shoot (`"LEFT"`, `"MIDDLE"`, `"RIGHT"`).
-  - `blockDirection` (*String*): The direction the goalie will block (`"LEFT"`, `"MIDDLE"`, `"RIGHT"`).
+  - `selectedDirection` (*String*): The direction the player aims to shoot (`"LEFT"`, `"MIDDLE"`, `"RIGHT"`). Then they will choose (`SKIP`, `REGULAR`).
+  - `blockDirection` (*String*): The direction the goalie will block (`"LEFT"`, `"MIDDLE"`, `"RIGHT"`). Then they will choose (`SKIP`, `REGULAR`).
 
 - **Methods**:
   - `initializeGame`: Sets initial score and lives, instantiates player and goalie objects, and starts the first round.
   - `startRound`: Resets player and goalie states to prepare for a new shot attempt.
   - `endRound`: Updates score or decrements lives based on the shot’s outcome and checks for game-over conditions.
   - `resetGame`: Resets all game variables to initial state for replay.
-  - `selectShotDirection` (*direction: String*): Sets `selectedDirection` based on user input. Checks if selectedDirection is same as blockDirection (which is randomized here). Updates necessary variables based on goal success.
+  - `selectShotDirection` (*direction: String*): Sets `selectedDirection` based on user input. Checks if selectedDirection is same as blockDirection (which is randomized here if ot chosen by player 2). Updates necessary variables based on goal success.
   - `updateScore` (*points: int*): Adds points to score after a successful goal.
   - `checkGameOver`: Returns `true` if lives have reached zero.
 
@@ -46,9 +46,11 @@ Manages game menus, start screen, score display, and end game/replay prompts.
   - `scoreDisplay` (*HTMLElement*): Shows the current score.
   - `livesDisplay` (*HTMLElement*): Shows remaining lives.
   - `selectedPlayer`: The player that is currently highlighted on the start screen.
+  - `selectedMultiplayer`: The player selected by player 2 (if multiplayer toggled)
 
 - **Methods**:
   - `displayStartScreen`: Shows the welcome message and player selection options.
   - `updateScoreDisplay`: Refreshes the score display after each round.
   - `changeSelectedPlayer`: Switches the highlighted player on the start screen.
   - `displayEndScreen`: Shows the game-over screen with replay options.
+  - `toggleMultiplayer`: Toggles multiplayer, if selected, player two can choose a different character

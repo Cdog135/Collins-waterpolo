@@ -12,8 +12,10 @@ My target audience is primarily targeted at young adolescents who are interested
 - Once you choose a player, your player will be in the middle of a water polo pool, and the perspective of the user will be behind the player facing towards the goal. 
 - There will be a goalie who is treading water to stay afloat. 
 - The selected player appears in the water, facing the goal, and the user has three shot options (left, middle, or right).
-- The goalie will randomly choose one of the three directions to block, adding an element of surprise.
-## suggestion from olivia: maybe instead of making it completely rng have a way you cna bypass the goalie with skill? just a suggestion though, if you want it to be completely random that's up to you
+- The selected player can also shoot a skip shot that bounces off the water. 
+- The goalie will randomly choose one of the six directions to block (left skip, middle skip, right skip, left, middle, right), adding an element of surprise, and will only block the shot if they choose correctly
+
+There is also a multiplayer option where you can play against a friend. where the friend can choose the goalie and their direction of block.
 
 ## User Flow
 1. Greeted with a welcome message and prompted to select a player.
@@ -23,8 +25,6 @@ My target audience is primarily targeted at young adolescents who are interested
 5. The game keeps track of the user’s score.
 6. The user can choose to replay the game or exit the game.
 7. the user has a certain amount of "lives" so it's a game to try and get the highest streak
-## olivia: is a game comprised of just one round of selecting left, middle, or right? or is it a set number of rounds that comprises a game (for example 5 rounds per game)? it might be a little annoying to have to press replay after every single round.
-## suggestion from olivia: maybe have a system where the game keeps track of a player's score? if it's just rng throw and block with no score keeping it might be a little boring. or have it so it's infinite and you have a certain amount of "lives" so it's a game to try and get the highest streak?
 
 ## Aesthetics
 - **Water Polo Player**: Each water polo player will be wearing water polo caps.
@@ -36,4 +36,3 @@ My target audience is primarily targeted at young adolescents who are interested
 ![Image 2](https://github.com/okonghw/Collins-waterpolo-forked/blob/main/c046f102-9de4-4d18-aab1-288e4a6b0e80.webp)
 
 ---
-
