@@ -12,7 +12,18 @@ My target audience is primarily targeted at young adolescents who are interested
 - Once you choose a player, your player will be in the middle of a water polo pool, and the perspective of the user will be behind the player facing towards the goal. 
 - There will be a goalie who is treading water to stay afloat. 
 - The selected player appears in the water, facing the goal, and the user has three shot options (left, middle, or right).
-- The goalie will randomly choose one of the three directions to block, adding an element of surprise.
+- The selcected player can also shoot a skip shot that bounces off the water. 
+- The goalie will randomly choose one of the six directions to block, adding an element of surprise.
+- option 1: left and middle
+- option 2: middle and right
+- option 3: skip left and left
+- option 4: skip right and right
+- option 5: skip middle and middle 
+- option 6: skip left and middle
+- option 7: skip right and middle
+- option 8: skip middle and right
+- option 9: skip middle and left
+There is also a multiplayer option where you can play against a friend. where the friend can choose the goalie and their direction of block.
 ## suggestion from olivia: maybe instead of making it completely rng have a way you cna bypass the goalie with skill? just a suggestion though, if you want it to be completely random that's up to you
 
 ## User Flow
