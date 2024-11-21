@@ -12,6 +12,7 @@
             justify-content: center;
             align-items: center;
             background-color: black;
+            touch-action: none;
         }
         canvas {
             display: block;
@@ -28,7 +29,7 @@
     </style>
 </head>
 <body>
-    <div id="instructions">Press SPACEBAR to shoot the ball to a corner</div>
+    <div id="instructions">Drag the ball and release on the rectangle to shoot</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
     <script>
         // Set up scene, camera, and renderer
@@ -55,9 +56,7 @@
             side: THREE.DoubleSide
         });
         const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-        
-        // Set initial ball position at bottom of screen
-        ball.position.set(0, -200, 0); // Start at bottom center
+        ball.position.set(0, -200, 0);
         scene.add(ball);
 
         // Set up camera position
@@ -66,22 +65,85 @@
         // Game state
         let isMoving = false;
         let targetPosition = new THREE.Vector3();
-        const corners = [
-            new THREE.Vector3(-175, 125, -200),  // Top left of rectangle
-            new THREE.Vector3(175, 125, -200),   // Top right of rectangle
-            new THREE.Vector3(-175, -125, -200), // Bottom left of rectangle
-            new THREE.Vector3(175, -125, -200)   // Bottom right of rectangle
-        ];
-        let currentCornerIndex = 0;
-        let canShoot = true; // New flag to control shooting
+        const corners = {
+            topLeft: new THREE.Vector3(-175, 125, -200),
+            topRight: new THREE.Vector3(175, 125, -200),
+            bottomLeft: new THREE.Vector3(-175, -125, -200),
+            bottomRight: new THREE.Vector3(175, -125, -200)
+        };
+        let canShoot = true;
 
-        // Handle spacebar press
-        document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space' && !isMoving && canShoot) {
-                isMoving = true;
-                targetPosition.copy(corners[currentCornerIndex]);
-                currentCornerIndex = (currentCornerIndex + 1) % corners.length;
-                canShoot = false; // Prevent shooting until ball returns
+        // Mouse control variables
+        let isDragging = false;
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const mousePlaneZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 200);
+        const intersectionPoint = new THREE.Vector3();
+
+        function findNearestCorner(point) {
+            const corners = [
+                { pos: new THREE.Vector3(-175, 125, -200), name: 'topLeft' },
+                { pos: new THREE.Vector3(175, 125, -200), name: 'topRight' },
+                { pos: new THREE.Vector3(-175, -125, -200), name: 'bottomLeft' },
+                { pos: new THREE.Vector3(175, -125, -200), name: 'bottomRight' }
+            ];
+
+            let nearestCorner = corners[0];
+            let minDistance = point.distanceTo(corners[0].pos);
+
+            corners.forEach(corner => {
+                const distance = point.distanceTo(corner.pos);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestCorner = corner;
+                }
+            });
+
+            return nearestCorner.pos;
+        }
+
+        // Mouse event handlers
+        renderer.domElement.addEventListener('mousedown', (event) => {
+            if (!isMoving && canShoot) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObject(ball);
+                
+                if (intersects.length > 0) {
+                    isDragging = true;
+                }
+            }
+        });
+
+        renderer.domElement.addEventListener('mousemove', (event) => {
+            if (isDragging) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            }
+        });
+
+        renderer.domElement.addEventListener('mouseup', (event) => {
+            if (isDragging) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                raycaster.ray.intersectPlane(mousePlaneZ, intersectionPoint);
+
+                // Check if the click is within rectangle bounds
+                if (Math.abs(intersectionPoint.x) <= 200 && 
+                    Math.abs(intersectionPoint.y) <= 150 && 
+                    intersectionPoint.z <= -150) {
+                    
+                    // Find nearest corner to release point
+                    targetPosition.copy(findNearestCorner(intersectionPoint));
+                    isMoving = true;
+                    canShoot = false;
+                }
+
+                isDragging = false;
             }
         });
 
@@ -90,20 +152,16 @@
             requestAnimationFrame(animate);
 
             if (isMoving) {
-                // Move ball towards target
                 const speed = 0.05;
                 ball.position.lerp(targetPosition, speed);
 
-                // Check if ball has reached target
                 if (ball.position.distanceTo(targetPosition) < 1) {
-                    isMoving = true; // Keep moving
-                    // Return to starting position
+                    isMoving = true;
                     targetPosition.set(0, -200, 0);
                     
-                    // If we're returning to start position
                     if (ball.position.y < -190) {
                         isMoving = false;
-                        canShoot = true; // Allow shooting again
+                        canShoot = true;
                     }
                 }
             }
