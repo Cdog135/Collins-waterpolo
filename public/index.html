@@ -28,56 +28,60 @@
     </style>
 </head>
 <body>
-    <div id="instructions">Press SPACEBAR to move the ball to corners</div>
-    <!-- Include Three.js from CDN -->
+    <div id="instructions">Press SPACEBAR to shoot the ball to a corner</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
     <script>
         // Set up scene, camera, and renderer
         const scene = new THREE.Scene();
-        const camera = new THREE.OrthographicCamera(
-            window.innerWidth / -2,
-            window.innerWidth / 2,
-            window.innerHeight / 2,
-            window.innerHeight / -2,
-            1,
-            1000
-        );
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
         // Background rectangle
-        const rectangleGeometry = new THREE.PlaneGeometry(800, 600);
-        const rectangleMaterial = new THREE.MeshBasicMaterial({ color: 0x444444 });
+        const rectangleGeometry = new THREE.PlaneGeometry(400, 300);
+        const rectangleMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0x444444,
+            side: THREE.DoubleSide
+        });
         const rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
+        rectangle.position.z = -200;
         scene.add(rectangle);
 
         // Ball (circle)
         const ballGeometry = new THREE.CircleGeometry(20, 32);
-        const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const ballMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xff0000,
+            side: THREE.DoubleSide
+        });
         const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+        
+        // Set initial ball position at bottom of screen
+        ball.position.set(0, -200, 0); // Start at bottom center
         scene.add(ball);
 
         // Set up camera position
-        camera.position.z = 5;
+        camera.position.z = 500;
 
         // Game state
         let isMoving = false;
         let targetPosition = new THREE.Vector3();
         const corners = [
-            new THREE.Vector3(-350, 250, 0),  // Top left
-            new THREE.Vector3(350, 250, 0),   // Top right
-            new THREE.Vector3(-350, -250, 0), // Bottom left
-            new THREE.Vector3(350, -250, 0)   // Bottom right
+            new THREE.Vector3(-175, 125, -200),  // Top left of rectangle
+            new THREE.Vector3(175, 125, -200),   // Top right of rectangle
+            new THREE.Vector3(-175, -125, -200), // Bottom left of rectangle
+            new THREE.Vector3(175, -125, -200)   // Bottom right of rectangle
         ];
         let currentCornerIndex = 0;
+        let canShoot = true; // New flag to control shooting
 
         // Handle spacebar press
         document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space' && !isMoving) {
+            if (event.code === 'Space' && !isMoving && canShoot) {
                 isMoving = true;
                 targetPosition.copy(corners[currentCornerIndex]);
                 currentCornerIndex = (currentCornerIndex + 1) % corners.length;
+                canShoot = false; // Prevent shooting until ball returns
             }
         });
 
@@ -92,7 +96,15 @@
 
                 // Check if ball has reached target
                 if (ball.position.distanceTo(targetPosition) < 1) {
-                    isMoving = false;
+                    isMoving = true; // Keep moving
+                    // Return to starting position
+                    targetPosition.set(0, -200, 0);
+                    
+                    // If we're returning to start position
+                    if (ball.position.y < -190) {
+                        isMoving = false;
+                        canShoot = true; // Allow shooting again
+                    }
                 }
             }
 
@@ -104,11 +116,7 @@
             const width = window.innerWidth;
             const height = window.innerHeight;
 
-            camera.left = width / -2;
-            camera.right = width / 2;
-            camera.top = height / 2;
-            camera.bottom = height / -2;
-
+            camera.aspect = width / height;
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
         });
