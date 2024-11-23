@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Water Polo Goal Game</title>
     <style>
         body {
@@ -16,6 +16,7 @@
         }
         canvas {
             display: block;
+            touch-action: none;
         }
         #instructions {
             position: absolute;
@@ -26,13 +27,21 @@
             width: 100%;
             z-index: 100;
             font-size: 1.2em;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        @media (max-width: 768px) {
+            #instructions {
+                font-size: 1em;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="instructions">Drag the ball and release anywhere inside the goal to shoot</div>
+    <div id="instructions">Drag or touch the ball and release inside the goal to shoot</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
     <script>
+        // Previous scene setup code remains the same until the event handlers...
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -40,7 +49,7 @@
         renderer.setClearColor(0x87CEEB);
         document.body.appendChild(renderer.domElement);
 
-        // Create water plane (pool)
+        // Water plane setup
         const waterGeometry = new THREE.PlaneGeometry(5000, 2000);
         const waterMaterial = new THREE.MeshPhongMaterial({ 
             color: 0x1E90FF,
@@ -57,6 +66,7 @@
             waterPlane.rotation.x = -Math.PI / 4 + Math.sin(Date.now() * 0.001) * 0.05;
         }
 
+        // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         scene.add(ambientLight);
 
@@ -64,7 +74,9 @@
         directionalLight.position.set(5, 5, 5);
         scene.add(directionalLight);
 
+        // Goal creation (same as before)
         function createGoalPosts() {
+            // ... (same goal creation code as before)
             const postMaterial = new THREE.MeshPhongMaterial({ 
                 color: 0xFFFFFF,
                 shininess: 100,
@@ -94,10 +106,12 @@
 
             goalGroup.add(leftPost, rightPost, crossbar, sideBarLeft, sideBarRight, backBar);
 
+            // Net creation
             const netMaterial = new THREE.LineBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.3 });
             const netSegmentsWidth = 40;
             const netSegmentsHeight = 20;
 
+            // Add net lines (same as before)
             for (let i = 0; i <= netSegmentsWidth; i++) {
                 const x = (goalWidth * i / netSegmentsWidth) - goalWidth/2;
                 const geometry = new THREE.BufferGeometry().setFromPoints([
@@ -122,24 +136,13 @@
                 goalGroup.add(line);
             }
 
-            for (let i = 0; i <= 10; i++) {
-                const z = (goalDepth * i / 10);
-                const geometry = new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(-goalWidth/2, -goalHeight/2, -400-z),
-                    new THREE.Vector3(-goalWidth/2, goalHeight/2, -400-z),
-                    new THREE.Vector3(goalWidth/2, goalHeight/2, -400-z),
-                    new THREE.Vector3(goalWidth/2, -goalHeight/2, -400-z)
-                ]);
-                const line = new THREE.Line(geometry, netMaterial);
-                goalGroup.add(line);
-            }
-
             return goalGroup;
         }
 
         const goal = createGoalPosts();
         scene.add(goal);
 
+        // Ball setup
         const sphereGeometry = new THREE.IcosahedronGeometry(40, 1);
         const sphereMaterial = new THREE.MeshPhongMaterial({ 
             color: 0xFFFF00,
@@ -162,11 +165,11 @@
         const mousePlaneZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 400);
         const intersectionPoint = new THREE.Vector3();
 
-        // Mouse events
-        renderer.domElement.addEventListener('mousedown', (event) => {
+        // Unified input handling function
+        function handleInputStart(clientX, clientY) {
             if (!isMoving && canShoot) {
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                mouse.x = (clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(clientY / window.innerHeight) * 2 + 1;
                 
                 raycaster.setFromCamera(mouse, camera);
                 const intersects = raycaster.intersectObject(ball);
@@ -175,33 +178,31 @@
                     isDragging = true;
                 }
             }
-        });
+        }
 
-        renderer.domElement.addEventListener('mousemove', (event) => {
+        function handleInputMove(clientX, clientY) {
             if (isDragging) {
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                mouse.x = (clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(clientY / window.innerHeight) * 2 + 1;
             }
-        });
+        }
 
-        renderer.domElement.addEventListener('mouseup', (event) => {
+        function handleInputEnd(clientX, clientY) {
             if (isDragging) {
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                mouse.x = (clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(clientY / window.innerHeight) * 2 + 1;
 
                 raycaster.setFromCamera(mouse, camera);
                 raycaster.ray.intersectPlane(mousePlaneZ, intersectionPoint);
 
-                // Check if the intersection point is within the goal area
                 if (Math.abs(intersectionPoint.x) <= 600 && 
                     Math.abs(intersectionPoint.y) <= 180 && 
                     intersectionPoint.z <= -300) {
                     
-                    // Use the exact intersection point instead of finding nearest corner
                     targetPosition.copy(new THREE.Vector3(
                         intersectionPoint.x,
                         intersectionPoint.y,
-                        -400 // Set z to goal plane
+                        -400
                     ));
                     
                     isMoving = true;
@@ -210,6 +211,41 @@
 
                 isDragging = false;
             }
+        }
+
+        // Mouse event listeners
+        renderer.domElement.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+            handleInputStart(event.clientX, event.clientY);
+        });
+
+        renderer.domElement.addEventListener('mousemove', (event) => {
+            event.preventDefault();
+            handleInputMove(event.clientX, event.clientY);
+        });
+
+        renderer.domElement.addEventListener('mouseup', (event) => {
+            event.preventDefault();
+            handleInputEnd(event.clientX, event.clientY);
+        });
+
+        // Touch event listeners
+        renderer.domElement.addEventListener('touchstart', (event) => {
+            event.preventDefault();
+            const touch = event.touches[0];
+            handleInputStart(touch.clientX, touch.clientY);
+        });
+
+        renderer.domElement.addEventListener('touchmove', (event) => {
+            event.preventDefault();
+            const touch = event.touches[0];
+            handleInputMove(touch.clientX, touch.clientY);
+        });
+
+        renderer.domElement.addEventListener('touchend', (event) => {
+            event.preventDefault();
+            const touch = event.changedTouches[0];
+            handleInputEnd(touch.clientX, touch.clientY);
         });
 
         function animate() {
@@ -237,6 +273,7 @@
             renderer.render(scene, camera);
         }
 
+        // Handle window resize
         window.addEventListener('resize', () => {
             const width = window.innerWidth;
             const height = window.innerHeight;
