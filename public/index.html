@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Three.js Game</title>
+    <title>Water Polo Goal Game</title>
     <style>
         body {
             margin: 0;
@@ -25,67 +25,171 @@
             text-align: center;
             width: 100%;
             z-index: 100;
+            font-size: 1.2em;
         }
     </style>
 </head>
 <body>
-    <div id="instructions">Drag the ball and release on the rectangle to shoot</div>
+    <div id="instructions">Drag the ball and release on the goal to shoot</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
     <script>
-        // Set up scene, camera, and renderer
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x87CEEB); // Sky blue color for upper background
         document.body.appendChild(renderer.domElement);
 
-        // Background rectangle
-        const rectangleGeometry = new THREE.PlaneGeometry(400, 300);
-        const rectangleMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0x444444,
-            side: THREE.DoubleSide
+        // Create water plane (pool)
+        const waterGeometry = new THREE.PlaneGeometry(5000, 2000);
+        const waterMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x1E90FF, // Dodger blue color for water
+            shininess: 100,
+            transparent: true,
+            opacity: 0.8
         });
-        const rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
-        rectangle.position.z = -200;
-        scene.add(rectangle);
+        const waterPlane = new THREE.Mesh(waterGeometry, waterMaterial);
+        waterPlane.position.set(0, -300, -800);
+        waterPlane.rotation.x = -Math.PI / 4;
+        scene.add(waterPlane);
 
-        // Ball (circle)
-        const ballGeometry = new THREE.CircleGeometry(20, 32);
-        const ballMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0xff0000,
-            side: THREE.DoubleSide
+        // Add some waves effect to the water
+        function animateWater() {
+            waterPlane.rotation.x = -Math.PI / 4 + Math.sin(Date.now() * 0.001) * 0.05;
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        // Rest of your existing code...
+        // Goal frame creation
+        function createGoalPosts() {
+            const postMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xFFFFFF,
+                shininess: 100,
+                emissive: 0x444444
+            });
+            const goalGroup = new THREE.Group();
+
+            const postRadius = 8;
+            const goalWidth = 1200;
+            const goalHeight = 360;
+            const goalDepth = 160;
+
+            function createPost(x, y, z, height, rotation = [0, 0, 0]) {
+                const geometry = new THREE.CylinderGeometry(postRadius, postRadius, height);
+                const post = new THREE.Mesh(geometry, postMaterial);
+                post.position.set(x, y, z);
+                post.rotation.set(...rotation);
+                return post;
+            }
+
+            // Vertical posts
+            const leftPost = createPost(-goalWidth/2, -goalHeight/2 + goalHeight/2, -400, goalHeight);
+            const rightPost = createPost(goalWidth/2, -goalHeight/2 + goalHeight/2, -400, goalHeight);
+
+            // Crossbar
+            const crossbar = createPost(0, goalHeight/2, -400, goalWidth, [0, 0, Math.PI/2]);
+
+            // Side bars
+            const sideBarLeft = createPost(-goalWidth/2, 0, -400-goalDepth/2, goalDepth, [Math.PI/2, 0, 0]);
+            const sideBarRight = createPost(goalWidth/2, 0, -400-goalDepth/2, goalDepth, [Math.PI/2, 0, 0]);
+
+            // Back bar
+            const backBar = createPost(0, 0, -400-goalDepth, goalWidth, [0, 0, Math.PI/2]);
+
+            goalGroup.add(leftPost, rightPost, crossbar, sideBarLeft, sideBarRight, backBar);
+
+            // Create net
+            const netMaterial = new THREE.LineBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.3 });
+            const netSegmentsWidth = 40;
+            const netSegmentsHeight = 20;
+
+            // Add net lines...
+            for (let i = 0; i <= netSegmentsWidth; i++) {
+                const x = (goalWidth * i / netSegmentsWidth) - goalWidth/2;
+                const geometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(x, -goalHeight/2, -400),
+                    new THREE.Vector3(x, goalHeight/2, -400),
+                    new THREE.Vector3(x, goalHeight/2, -400-goalDepth),
+                    new THREE.Vector3(x, -goalHeight/2, -400-goalDepth)
+                ]);
+                const line = new THREE.Line(geometry, netMaterial);
+                goalGroup.add(line);
+            }
+
+            for (let i = 0; i <= netSegmentsHeight; i++) {
+                const y = (goalHeight * i / netSegmentsHeight) - goalHeight/2;
+                const geometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(-goalWidth/2, y, -400),
+                    new THREE.Vector3(goalWidth/2, y, -400),
+                    new THREE.Vector3(goalWidth/2, y, -400-goalDepth),
+                    new THREE.Vector3(-goalWidth/2, y, -400-goalDepth)
+                ]);
+                const line = new THREE.Line(geometry, netMaterial);
+                goalGroup.add(line);
+            }
+
+            for (let i = 0; i <= 10; i++) {
+                const z = (goalDepth * i / 10);
+                const geometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(-goalWidth/2, -goalHeight/2, -400-z),
+                    new THREE.Vector3(-goalWidth/2, goalHeight/2, -400-z),
+                    new THREE.Vector3(goalWidth/2, goalHeight/2, -400-z),
+                    new THREE.Vector3(goalWidth/2, -goalHeight/2, -400-z)
+                ]);
+                const line = new THREE.Line(geometry, netMaterial);
+                goalGroup.add(line);
+            }
+
+            return goalGroup;
+        }
+
+        const goal = createGoalPosts();
+        scene.add(goal);
+
+        // Ball
+        const sphereGeometry = new THREE.IcosahedronGeometry(40, 1);
+        const sphereMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0xFFFF00,
+            shininess: 100,
+            flatShading: true
         });
-        const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-        ball.position.set(0, -200, 0);
+        const ball = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        ball.position.set(0, -300, 0);
         scene.add(ball);
 
-        // Set up camera position
-        camera.position.z = 500;
+        camera.position.z = 1000;
 
         // Game state
         let isMoving = false;
         let targetPosition = new THREE.Vector3();
         const corners = {
-            topLeft: new THREE.Vector3(-175, 125, -200),
-            topRight: new THREE.Vector3(175, 125, -200),
-            bottomLeft: new THREE.Vector3(-175, -125, -200),
-            bottomRight: new THREE.Vector3(175, -125, -200)
+            topLeft: new THREE.Vector3(-560, 140, -400),
+            topRight: new THREE.Vector3(560, 140, -400),
+            bottomLeft: new THREE.Vector3(-560, -140, -400),
+            bottomRight: new THREE.Vector3(560, -140, -400)
         };
         let canShoot = true;
 
-        // Mouse control variables
+        // Mouse control
         let isDragging = false;
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
-        const mousePlaneZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 200);
+        const mousePlaneZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 400);
         const intersectionPoint = new THREE.Vector3();
 
         function findNearestCorner(point) {
             const corners = [
-                { pos: new THREE.Vector3(-175, 125, -200), name: 'topLeft' },
-                { pos: new THREE.Vector3(175, 125, -200), name: 'topRight' },
-                { pos: new THREE.Vector3(-175, -125, -200), name: 'bottomLeft' },
-                { pos: new THREE.Vector3(175, -125, -200), name: 'bottomRight' }
+                { pos: new THREE.Vector3(-560, 140, -400), name: 'topLeft' },
+                { pos: new THREE.Vector3(560, 140, -400), name: 'topRight' },
+                { pos: new THREE.Vector3(-560, -140, -400), name: 'bottomLeft' },
+                { pos: new THREE.Vector3(560, -140, -400), name: 'bottomRight' }
             ];
 
             let nearestCorner = corners[0];
@@ -102,7 +206,7 @@
             return nearestCorner.pos;
         }
 
-        // Mouse event handlers
+        // Mouse events
         renderer.domElement.addEventListener('mousedown', (event) => {
             if (!isMoving && canShoot) {
                 mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -132,12 +236,10 @@
                 raycaster.setFromCamera(mouse, camera);
                 raycaster.ray.intersectPlane(mousePlaneZ, intersectionPoint);
 
-                // Check if the click is within rectangle bounds
-                if (Math.abs(intersectionPoint.x) <= 200 && 
-                    Math.abs(intersectionPoint.y) <= 150 && 
-                    intersectionPoint.z <= -150) {
+                if (Math.abs(intersectionPoint.x) <= 600 && 
+                    Math.abs(intersectionPoint.y) <= 180 && 
+                    intersectionPoint.z <= -300) {
                     
-                    // Find nearest corner to release point
                     targetPosition.copy(findNearestCorner(intersectionPoint));
                     isMoving = true;
                     canShoot = false;
@@ -147,19 +249,23 @@
             }
         });
 
-        // Animation loop
         function animate() {
             requestAnimationFrame(animate);
+
+            // Animate water
+            animateWater();
 
             if (isMoving) {
                 const speed = 0.05;
                 ball.position.lerp(targetPosition, speed);
+                ball.rotation.x += 0.05;
+                ball.rotation.y += 0.05;
 
                 if (ball.position.distanceTo(targetPosition) < 1) {
                     isMoving = true;
-                    targetPosition.set(0, -200, 0);
+                    targetPosition.set(0, -300, 0);
                     
-                    if (ball.position.y < -190) {
+                    if (ball.position.y < -290) {
                         isMoving = false;
                         canShoot = true;
                     }
@@ -169,7 +275,6 @@
             renderer.render(scene, camera);
         }
 
-        // Handle window resize
         window.addEventListener('resize', () => {
             const width = window.innerWidth;
             const height = window.innerHeight;
@@ -179,7 +284,6 @@
             renderer.setSize(width, height);
         });
 
-        // Start animation
         animate();
     </script>
 </body>
