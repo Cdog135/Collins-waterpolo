@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <!-- Responsive viewport settings for mobile devices -->
+    <!-- Basic meta settings -->
+    <meta charset="utf-8">
+    <!-- Viewport settings for mobile responsiveness -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Water Polo Goal Game</title>
-    <!-- CSS Styles -->
+    <title>Water Polo Game</title>
     <style>
-        /* Main body styles - centers content and prevents scrolling */
+        /* Reset default margin and handle overflow */
         body {
             margin: 0;
             overflow: hidden;
@@ -15,45 +15,45 @@
             justify-content: center;
             align-items: center;
             background-color: black;
+            /* Prevent default touch behaviors */
             touch-action: none;
         }
 
-        /* Canvas styles - prevents default touch behaviors */
+        /* Canvas styling for Three.js renderer */
         canvas {
             display: block;
+            /* Prevent default touch behaviors on canvas */
             touch-action: none;
         }
 
-        /* Game instruction text styles */
+        /* Game instruction text styling */
         #instructions {
+            /* Position at top of screen */
             position: absolute;
             top: 20px;
+            /* Text styling */
             color: white;
             font-family: Arial, sans-serif;
             text-align: center;
+            /* Layout */
             width: 100%;
-            z-index: 100;
+            z-index: 100;  /* Ensure text appears above canvas */
             font-size: 1.2em;
+            /* Add padding for readability */
             padding: 0 20px;
             box-sizing: border-box;
-        }
-
-        /* Responsive design for mobile devices */
-        @media (max-width: 768px) {
-            #instructions {
-                font-size: 1em;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Game instructions display -->
+    <!-- Game instructions overlay -->
     <div id="instructions">Drag or touch the ball and release inside the goal to shoot</div>
 
-    <!-- Required external libraries -->
-    <!-- Three.js library for 3D graphics -->
+    <!-- Load Three.js library from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
-    <!-- Our game logic -->
-    <script src="game.js"></script>
+    
+    <!-- Load main game script as a module -->
+    <!-- Using type="module" enables ES6 import/export functionality -->
+    <script type="module" src="Game.js"></script>
 </body>
 </html>
