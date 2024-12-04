@@ -71,12 +71,7 @@ class GameElements {
     }
 
     createNet(goalGroup, goalWidth, goalHeight, goalDepth) {
-        const netMaterial = new THREE.LineBasicMaterial({ 
-            color: 0xFFFFFF, 
-            transparent: true, 
-            opacity: 0.3 
-        });
-        
+        const netMaterial = new THREE.LineBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.3 });
         const netSegmentsWidth = 40;
         const netSegmentsHeight = 20;
 
@@ -115,4 +110,3 @@ class GameElements {
 }
 
 export default GameElements;
-

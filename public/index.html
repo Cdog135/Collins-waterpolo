@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Water Polo Goal Game</title>
+    <link rel="stylesheet" href="style.css">
     <style>
         body {
             margin: 0;
@@ -34,10 +35,9 @@
 </head>
 <body>
     <div id="instructions">Drag or touch the ball and release inside the goal to shoot</div>
+    <!-- Load Three.js first -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
-    <script type="module">
-        import Game from './Game.js';
-        new Game();
-    </script>
+    <!-- Load our game -->
+    <script type="module" src="./Game.js"></script>
 </body>
 </html>
