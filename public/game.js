@@ -2,7 +2,7 @@ import SceneManager from './SceneManager.js';
 import GameElements from './GameElements.js';
 import GameController from './GameController.js';
 
-class Game {
+class Game { 
     constructor() {
         this.sceneManager = new SceneManager();
         this.gameElements = new GameElements(this.sceneManager);
