@@ -1,13 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <!-- Basic meta settings -->
-    <meta charset="utf-8">
-    <!-- Viewport settings for mobile responsiveness -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Water Polo Game</title>
+    <title>Water Polo Goal Game</title>
     <style>
-        /* Reset default margin and handle overflow */
         body {
             margin: 0;
             overflow: hidden;
@@ -15,45 +12,32 @@
             justify-content: center;
             align-items: center;
             background-color: black;
-            /* Prevent default touch behaviors */
             touch-action: none;
         }
-
-        /* Canvas styling for Three.js renderer */
         canvas {
             display: block;
-            /* Prevent default touch behaviors on canvas */
             touch-action: none;
         }
-
-        /* Game instruction text styling */
         #instructions {
-            /* Position at top of screen */
             position: absolute;
             top: 20px;
-            /* Text styling */
             color: white;
             font-family: Arial, sans-serif;
             text-align: center;
-            /* Layout */
             width: 100%;
-            z-index: 100;  /* Ensure text appears above canvas */
+            z-index: 100;
             font-size: 1.2em;
-            /* Add padding for readability */
             padding: 0 20px;
             box-sizing: border-box;
         }
     </style>
 </head>
 <body>
-    <!-- Game instructions overlay -->
     <div id="instructions">Drag or touch the ball and release inside the goal to shoot</div>
-
-    <!-- Load Three.js library from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
-    
-    <!-- Load main game script as a module -->
-    <!-- Using type="module" enables ES6 import/export functionality -->
-    <script type="module" src="Game.js"></script>
+    <script type="module">
+        import Game from './Game.js';
+        new Game();
+    </script>
 </body>
 </html>
