@@ -1,21 +1,61 @@
 # MVP Implementation Plan
 
+
+
 ## Day 1-2 (Core Framework)
-- Set up GameManager
-    - Including the score, lives, variables and methods that control shot and block direction, and initalization, start round, and end round methods
-- Should start with 2D graphics for simplicity
+Basic Setup
+Created a simple Three.js scene
+Added camera positioned to view the game area
+Set up basic lighting to see objects
+Core Game Objects
+Ball
+Created a basic yellow sphere for the ball
+Set starting position at bottom of screen
+Added simple movement controls
+Goal
+Built simple white posts and crossbar
+Added basic net design
+Positioned at back of scene
+Water Surface
+Added blue plane for water
+Simple up/down animation for water motion
+## Day 3 (Core Game Features)
+Mouse Controls
+Click and drag ball to aim
+Release to shoot towards goal
+Ball moves smoothly to target location
+Shot System
+Ball follows path to where player aimed
+Returns to start position after each shot
+Simple collision detection with goal area
+## Day 4-5 (Improvements)
+Mobile Support
+Added touch controls for mobile devices
+Ball follows finger/touch movement
+Same shooting mechanics as mouse
+Refinements
+Made sure ball movement is smooth
+Fixed goal size and position
+Added simple instructions text
+Made game work on different screen sizes
 
-## Day 3 (Important Features)
-- Complete GameManager, adding functionality for skipping shots
-- Create the UIManager Class
-    - This includes a start and end screen
+----------------------------------------------------------------------------------
+## NEXT STEPS
+----------------------------------------------------------------------------------
+Create a goalie object who chooses a third of the goal to block and will output block if the goalie guesses correctly.
+Add a scoring system that increments when the ball goes in the goal.
+Add a lives system that decrements when the ball is blocked.
+Add a game over screen that displays the final score and allows the player to restart.
+Add music and sound effects.
+Make it so the player can skip a shot by dragging the ball towards the bottom of the screen.
+make it so the player can adjust the speed of the shot by dragging the ball quicker or slower.
 
-## Day 4-5 (Enhancement & Testing)
-- Implement P2 features
-    - Tracking the success of each round
-    - Adding a multiplayer component to the game
-    - Switching to 3D graphics if time allows
-- Final testing and refinement
+
+
+Add a multiplayer option where a second player can control the goalie.
+
+
+
 
 
 ### Initialization inside GameManager
