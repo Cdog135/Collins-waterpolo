@@ -46,7 +46,6 @@ Create a goalie object who chooses a third of the goal to block and will output 
 Add a scoring system that increments when the ball goes in the goal.
 Add a lives system that decrements when the ball is blocked.
 Add a game over screen that displays the final score and allows the player to restart.
-Add music and sound effects.
 Make it so the player can skip a shot by dragging the ball towards the bottom of the screen.
 make it so the player can adjust the speed of the shot by dragging the ball quicker or slower.
 
