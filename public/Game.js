@@ -51,6 +51,11 @@ class GameElements {
         this.createWater();
         this.createBall();
         this.createGoal();
+
+        this.createGoalie();
+        this.createScoreDisplay();
+
+        this.initialBallPosition = new THREE.Vector3(0, -300, 0);
     }
 
     createWater() {
@@ -89,10 +94,10 @@ class GameElements {
         });
 
         const goalGroup = new THREE.Group();
-        const postRadius = 8;
-        const goalWidth = 1200;
-        const goalHeight = 360;
-        const goalDepth = 160;
+        const postRadius = 10; // Slightly thicker posts
+        const goalWidth = 1500;  // Increased from 1200
+        const goalHeight = 450;  // Increased from 360
+        const goalDepth = 200;   // Increased from 160
 
         const createPost = (x, y, z, height, rotation = [0, 0, 0]) => {
             const geometry = new THREE.CylinderGeometry(postRadius, postRadius, height);
@@ -119,8 +124,8 @@ class GameElements {
 
     createNet(goalGroup, goalWidth, goalHeight, goalDepth) {
         const netMaterial = new THREE.LineBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.3 });
-        const netSegmentsWidth = 40;
-        const netSegmentsHeight = 20;
+        const netSegmentsWidth = 50;  // Increased number of segments for larger goal
+        const netSegmentsHeight = 25;  // Increased number of segments for larger goal
 
         // Vertical net lines
         for (let i = 0; i <= netSegmentsWidth; i++) {
@@ -154,7 +159,79 @@ class GameElements {
             this.waterPlane.rotation.x = -Math.PI / 4 + Math.sin(Date.now() * 0.001) * 0.05;
         }
     }
+
+    createGoalie() {
+        // Create a larger plane geometry for the goalie sprite
+        const goalieGeometry = new THREE.PlaneGeometry(350, 200); // Increased size
+        const goalieTexture = new THREE.TextureLoader().load('ksi.png');
+        const goalieMaterial = new THREE.MeshBasicMaterial({
+            map: goalieTexture,
+            transparent: true
+        });
+        
+        this.goalie = new THREE.Mesh(goalieGeometry, goalieMaterial);
+        this.goalie.position.set(0, -120, -390); // Moved higher up
+        this.goalieDirection = 1;
+        this.goalieSpeed = 6;
+        this.sceneManager.add(this.goalie);
+    }
+
+    createScoreDisplay() {
+        const scoreDiv = document.createElement('div');
+        scoreDiv.id = 'scoreDisplay';
+        scoreDiv.style.position = 'absolute';
+        scoreDiv.style.width = '100%';
+        scoreDiv.style.textAlign = 'center';
+        scoreDiv.style.top = '30%'; // Position above the goal
+        scoreDiv.style.color = 'white';
+        scoreDiv.style.fontSize = '48px';
+        scoreDiv.style.fontWeight = 'bold';
+        scoreDiv.style.display = 'none';
+        scoreDiv.style.zIndex = '1000';
+        scoreDiv.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
+        scoreDiv.style.fontFamily = 'Arial, sans-serif';
+        scoreDiv.style.transition = 'opacity 0.3s';
+        document.body.appendChild(scoreDiv);
+        this.scoreDisplay = scoreDiv;
+    }
+
+    updateGoalie() {
+        const maxX = 600; // Adjusted range of motion
+        this.goalie.position.x += this.goalieSpeed * this.goalieDirection;
+
+        if (Math.abs(this.goalie.position.x) > maxX) {
+            this.goalieDirection *= -1;
+        }
+    }
+
+    showScore(isGoal) {
+        this.scoreDisplay.textContent = isGoal ? 'GOALLLLL' : 'NO GOAL';
+        this.scoreDisplay.style.opacity = '1';
+        this.scoreDisplay.style.display = 'block';
+        this.scoreDisplay.style.color = isGoal ? '#00ff00' : '#ff0000';
+        
+        // Fade out effect
+        setTimeout(() => {
+            this.scoreDisplay.style.opacity = '0';
+            setTimeout(() => {
+                this.scoreDisplay.style.display = 'none';
+            }, 300);
+        }, 1700);
+    }
+
+    checkGoalieCollision(ballPosition) {
+        const goalieBox = new THREE.Box3().setFromObject(this.goalie);
+        const ballBox = new THREE.Box3().setFromObject(this.ball);
+        
+        return goalieBox.intersectsBox(ballBox);
+    }
+
+    resetBall() {
+        this.ball.position.copy(this.initialBallPosition);
+        this.ball.rotation.set(0, 0, 0);
+    }
 }
+
 
 class GameController {
     constructor(sceneManager, gameElements) {
@@ -265,16 +342,25 @@ class GameController {
             ball.rotation.x += 0.05;
             ball.rotation.y += 0.05;
 
-            if (ball.position.distanceTo(this.targetPosition) < 1) {
-                this.isMoving = true;
-                this.targetPosition.set(0, -300, 0);
+            // Check for goal attempt when ball reaches the goal plane
+            if (ball.position.z <= -390) {
+                const hitGoalie = this.gameElements.checkGoalieCollision(ball.position);
+                this.gameElements.showScore(!hitGoalie);
                 
-                if (ball.position.y < -290) {
-                    this.isMoving = false;
-                    this.canShoot = true;
-                }
+                // Start return journey
+                this.targetPosition.copy(this.gameElements.initialBallPosition);
+            }
+
+            // Reset shot when ball returns to initial position
+            if (ball.position.distanceTo(this.gameElements.initialBallPosition) < 1) {
+                this.isMoving = false;
+                this.canShoot = true;
+                this.gameElements.resetBall();
             }
         }
+
+        // Update goalie position
+        this.gameElements.updateGoalie();
     }
 }
 
