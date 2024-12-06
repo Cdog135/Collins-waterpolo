@@ -186,18 +186,6 @@ class GameElements {
     createScoreDisplay() {
         const scoreDiv = document.createElement('div');
         scoreDiv.id = 'scoreDisplay';
-        scoreDiv.style.position = 'absolute';
-        scoreDiv.style.width = '100%';
-        scoreDiv.style.textAlign = 'center';
-        scoreDiv.style.top = '30%'; // Position above the goal
-        scoreDiv.style.color = 'white';
-        scoreDiv.style.fontSize = '48px';
-        scoreDiv.style.fontWeight = 'bold';
-        scoreDiv.style.display = 'none';
-        scoreDiv.style.zIndex = '1000';
-        scoreDiv.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
-        scoreDiv.style.fontFamily = 'Arial, sans-serif';
-        scoreDiv.style.transition = 'opacity 0.3s';
         document.body.appendChild(scoreDiv);
         this.scoreDisplay = scoreDiv;
     }
@@ -205,20 +193,7 @@ class GameElements {
     createScoreCounter() {
         const scoreContainer = document.createElement('div');
         scoreContainer.id = 'scoreCounter';
-        scoreContainer.style.position = 'absolute';
-        scoreContainer.style.top = '20px';
-        scoreContainer.style.left = '20px';
-        scoreContainer.style.padding = '15px';  // Increased padding
-        scoreContainer.style.color = 'white';
-        scoreContainer.style.fontSize = '72px';  // Increased from 36px to 72px
-        scoreContainer.style.fontWeight = 'bold';
-        scoreContainer.style.fontFamily = 'Arial, sans-serif';
-        scoreContainer.style.textShadow = '3px 3px 6px rgba(0,0,0,0.5)';  // Enhanced shadow
-        scoreContainer.style.zIndex = '1000';
-        
-        // Set initial score text
         scoreContainer.textContent = `Score: 0`;
-        
         document.body.appendChild(scoreContainer);
         this.scoreCounter = scoreContainer;
     }
@@ -232,31 +207,11 @@ class GameElements {
     createWinDisplay() {
         const winDiv = document.createElement('div');
         winDiv.id = 'winDisplay';
-        winDiv.style.position = 'absolute';
-        winDiv.style.width = '100%';
-        winDiv.style.height = '100%';
-        winDiv.style.display = 'none';
-        winDiv.style.justifyContent = 'center';
-        winDiv.style.alignItems = 'center';
-        winDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        winDiv.style.color = 'gold';
-        winDiv.style.fontSize = '72px';
-        winDiv.style.fontWeight = 'bold';
-        winDiv.style.fontFamily = 'Arial, sans-serif';
-        winDiv.style.zIndex = '2000';
         winDiv.textContent = 'YOU WIN!';
         
         const restartButton = document.createElement('button');
         restartButton.textContent = 'Play Again';
-        restartButton.style.position = 'relative';
-        restartButton.style.top = '50px';
-        restartButton.style.padding = '15px 30px';
-        restartButton.style.fontSize = '24px';
-        restartButton.style.backgroundColor = '#4CAF50';
-        restartButton.style.border = 'none';
-        restartButton.style.borderRadius = '5px';
-        restartButton.style.color = 'white';
-        restartButton.style.cursor = 'pointer';
+        restartButton.className = 'restart-button';
         restartButton.onclick = () => this.restartGame();
         
         winDiv.appendChild(document.createElement('br'));
@@ -329,20 +284,11 @@ class GameElements {
     createLivesDisplay() {
         const livesContainer = document.createElement('div');
         livesContainer.id = 'livesDisplay';
-        livesContainer.style.position = 'absolute';
-        livesContainer.style.top = '20px';
-        livesContainer.style.right = '20px';
-        livesContainer.style.display = 'flex';
-        livesContainer.style.gap = '10px';
-        livesContainer.style.zIndex = '1000';
         
-        // Create three hearts
         this.hearts = [];
         for (let i = 0; i < 3; i++) {
             const heart = document.createElement('img');
-            heart.src = 'fullheart.jpg'; // You'll need to provide this
-            heart.style.width = '100px';
-            heart.style.height = '100px';
+            heart.src = 'fullheart.jpg';
             this.hearts.push(heart);
             livesContainer.appendChild(heart);
         }
@@ -354,32 +300,11 @@ class GameElements {
     createGameOverDisplay() {
         const gameOverDiv = document.createElement('div');
         gameOverDiv.id = 'gameOverDisplay';
-        gameOverDiv.style.position = 'absolute';
-        gameOverDiv.style.width = '100%';
-        gameOverDiv.style.height = '100%';
-        gameOverDiv.style.display = 'none';
-        gameOverDiv.style.justifyContent = 'center';
-        gameOverDiv.style.alignItems = 'center';
-        gameOverDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        gameOverDiv.style.color = 'white';
-        gameOverDiv.style.fontSize = '72px';
-        gameOverDiv.style.fontWeight = 'bold';
-        gameOverDiv.style.fontFamily = 'Arial, sans-serif';
-        gameOverDiv.style.zIndex = '2000';
         gameOverDiv.textContent = 'GAME OVER';
         
-        // Add restart button
         const restartButton = document.createElement('button');
         restartButton.textContent = 'Play Again';
-        restartButton.style.position = 'relative';
-        restartButton.style.top = '50px';
-        restartButton.style.padding = '15px 30px';
-        restartButton.style.fontSize = '24px';
-        restartButton.style.backgroundColor = '#4CAF50';
-        restartButton.style.border = 'none';
-        restartButton.style.borderRadius = '5px';
-        restartButton.style.color = 'white';
-        restartButton.style.cursor = 'pointer';
+        restartButton.className = 'restart-button';
         restartButton.onclick = () => this.restartGame();
         
         gameOverDiv.appendChild(document.createElement('br'));
