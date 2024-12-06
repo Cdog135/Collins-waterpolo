@@ -48,19 +48,22 @@ class SceneManager {
 class GameElements {
     constructor(sceneManager) {
         this.sceneManager = sceneManager;
+        this.score = 0;  // Move this to the top
+        this.initialGoalieSpeed = 4;  // Move this to the top
+        this.lives = 3;
+        this.gameOver = false;
+    
         this.createWater();
         this.createBall();
         this.createGoal();
-
         this.createGoalie();
         this.createScoreDisplay();
-
-        this.initialBallPosition = new THREE.Vector3(0, -300, 0);
-
-        this.lives = 3;
-        this.gameOver = false;
+        this.createScoreCounter();  // Move this up before other UI elements
         this.createLivesDisplay();
         this.createGameOverDisplay();
+        this.createWinDisplay();
+    
+        this.initialBallPosition = new THREE.Vector3(0, -300, 0);
     }
 
     createWater() {
@@ -166,8 +169,7 @@ class GameElements {
     }
 
     createGoalie() {
-        // Create a larger plane geometry for the goalie sprite
-        const goalieGeometry = new THREE.PlaneGeometry(350, 200); // Increased size
+        const goalieGeometry = new THREE.PlaneGeometry(350, 200);
         const goalieTexture = new THREE.TextureLoader().load('ksi.png');
         const goalieMaterial = new THREE.MeshBasicMaterial({
             map: goalieTexture,
@@ -175,9 +177,9 @@ class GameElements {
         });
         
         this.goalie = new THREE.Mesh(goalieGeometry, goalieMaterial);
-        this.goalie.position.set(0, -120, -390); // Moved higher up
+        this.goalie.position.set(0, -120, -390);
         this.goalieDirection = 1;
-        this.goalieSpeed = 6;
+        this.goalieSpeed = this.initialGoalieSpeed;  // Use the initial speed
         this.sceneManager.add(this.goalie);
     }
 
@@ -200,6 +202,80 @@ class GameElements {
         this.scoreDisplay = scoreDiv;
     }
 
+    createScoreCounter() {
+        const scoreContainer = document.createElement('div');
+        scoreContainer.id = 'scoreCounter';
+        scoreContainer.style.position = 'absolute';
+        scoreContainer.style.top = '20px';
+        scoreContainer.style.left = '20px';
+        scoreContainer.style.padding = '15px';  // Increased padding
+        scoreContainer.style.color = 'white';
+        scoreContainer.style.fontSize = '72px';  // Increased from 36px to 72px
+        scoreContainer.style.fontWeight = 'bold';
+        scoreContainer.style.fontFamily = 'Arial, sans-serif';
+        scoreContainer.style.textShadow = '3px 3px 6px rgba(0,0,0,0.5)';  // Enhanced shadow
+        scoreContainer.style.zIndex = '1000';
+        
+        // Set initial score text
+        scoreContainer.textContent = `Score: 0`;
+        
+        document.body.appendChild(scoreContainer);
+        this.scoreCounter = scoreContainer;
+    }
+
+    updateScoreDisplay(container = this.scoreCounter) {
+        if (container) {
+            container.textContent = `Score: ${this.score}`;
+        }
+    }
+
+    createWinDisplay() {
+        const winDiv = document.createElement('div');
+        winDiv.id = 'winDisplay';
+        winDiv.style.position = 'absolute';
+        winDiv.style.width = '100%';
+        winDiv.style.height = '100%';
+        winDiv.style.display = 'none';
+        winDiv.style.justifyContent = 'center';
+        winDiv.style.alignItems = 'center';
+        winDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        winDiv.style.color = 'gold';
+        winDiv.style.fontSize = '72px';
+        winDiv.style.fontWeight = 'bold';
+        winDiv.style.fontFamily = 'Arial, sans-serif';
+        winDiv.style.zIndex = '2000';
+        winDiv.textContent = 'YOU WIN!';
+        
+        const restartButton = document.createElement('button');
+        restartButton.textContent = 'Play Again';
+        restartButton.style.position = 'relative';
+        restartButton.style.top = '50px';
+        restartButton.style.padding = '15px 30px';
+        restartButton.style.fontSize = '24px';
+        restartButton.style.backgroundColor = '#4CAF50';
+        restartButton.style.border = 'none';
+        restartButton.style.borderRadius = '5px';
+        restartButton.style.color = 'white';
+        restartButton.style.cursor = 'pointer';
+        restartButton.onclick = () => this.restartGame();
+        
+        winDiv.appendChild(document.createElement('br'));
+        winDiv.appendChild(restartButton);
+        document.body.appendChild(winDiv);
+        this.winDisplay = winDiv;
+    }
+
+    
+
+    increaseGoalieSpeed() {
+        this.goalieSpeed *= 1.35; // Increase speed by 8.5%
+    }
+
+    winGame() {
+        this.gameOver = true;
+        this.winDisplay.style.display = 'flex';
+    }
+
     updateGoalie() {
         const maxX = 600; // Adjusted range of motion
         this.goalie.position.x += this.goalieSpeed * this.goalieDirection;
@@ -210,15 +286,26 @@ class GameElements {
     }
 
     showScore(isGoal) {
+        if (this.gameOver) return;
+        
         this.scoreDisplay.textContent = isGoal ? 'GOALLLLL' : 'NO GOAL';
         this.scoreDisplay.style.opacity = '1';
         this.scoreDisplay.style.display = 'block';
         this.scoreDisplay.style.color = isGoal ? '#00ff00' : '#ff0000';
         
-        if (!isGoal) {
+        if (isGoal) {
+            this.score++;
+            this.updateScoreDisplay();
+            this.increaseGoalieSpeed();
+            
+            if (this.score >= 5) {
+                this.winGame();
+                return;
+            }
+        } else {
             this.updateLives();
         }
-        // Fade out effect
+        
         setTimeout(() => {
             this.scoreDisplay.style.opacity = '0';
             setTimeout(() => {
@@ -320,36 +407,26 @@ class GameElements {
 
     restartGame() {
         this.lives = 3;
+        this.score = 0;
         this.gameOver = false;
+        this.goalieSpeed = this.initialGoalieSpeed;
+        
         // Reset hearts
         this.hearts.forEach(heart => {
             heart.src = 'fullheart.jpg';
         });
+        
         // Reset ball position
         this.resetBall();
-        // Hide game over display
+        
+        // Hide end game displays
         this.gameOverDisplay.style.display = 'none';
+        this.winDisplay.style.display = 'none';
+        
+        // Reset score display
+        this.updateScoreDisplay();
     }
 
-    showScore(isGoal) {
-        if (this.gameOver) return;
-        
-        this.scoreDisplay.textContent = isGoal ? 'GOALLLLL' : 'NO GOAL';
-        this.scoreDisplay.style.opacity = '1';
-        this.scoreDisplay.style.display = 'block';
-        this.scoreDisplay.style.color = isGoal ? '#00ff00' : '#ff0000';
-        
-        if (!isGoal) {
-            this.updateLives();
-        }
-        
-        setTimeout(() => {
-            this.scoreDisplay.style.opacity = '0';
-            setTimeout(() => {
-                this.scoreDisplay.style.display = 'none';
-            }, 300);
-        }, 1700);
-    }
 }
 
 
