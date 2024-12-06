@@ -56,6 +56,11 @@ class GameElements {
         this.createScoreDisplay();
 
         this.initialBallPosition = new THREE.Vector3(0, -300, 0);
+
+        this.lives = 3;
+        this.gameOver = false;
+        this.createLivesDisplay();
+        this.createGameOverDisplay();
     }
 
     createWater() {
@@ -210,6 +215,9 @@ class GameElements {
         this.scoreDisplay.style.display = 'block';
         this.scoreDisplay.style.color = isGoal ? '#00ff00' : '#ff0000';
         
+        if (!isGoal) {
+            this.updateLives();
+        }
         // Fade out effect
         setTimeout(() => {
             this.scoreDisplay.style.opacity = '0';
@@ -230,13 +238,124 @@ class GameElements {
         this.ball.position.copy(this.initialBallPosition);
         this.ball.rotation.set(0, 0, 0);
     }
+
+    createLivesDisplay() {
+        const livesContainer = document.createElement('div');
+        livesContainer.id = 'livesDisplay';
+        livesContainer.style.position = 'absolute';
+        livesContainer.style.top = '20px';
+        livesContainer.style.right = '20px';
+        livesContainer.style.display = 'flex';
+        livesContainer.style.gap = '10px';
+        livesContainer.style.zIndex = '1000';
+        
+        // Create three hearts
+        this.hearts = [];
+        for (let i = 0; i < 3; i++) {
+            const heart = document.createElement('img');
+            heart.src = 'fullheart.jpg'; // You'll need to provide this
+            heart.style.width = '100px';
+            heart.style.height = '100px';
+            this.hearts.push(heart);
+            livesContainer.appendChild(heart);
+        }
+        
+        document.body.appendChild(livesContainer);
+        this.livesDisplay = livesContainer;
+    }
+
+    createGameOverDisplay() {
+        const gameOverDiv = document.createElement('div');
+        gameOverDiv.id = 'gameOverDisplay';
+        gameOverDiv.style.position = 'absolute';
+        gameOverDiv.style.width = '100%';
+        gameOverDiv.style.height = '100%';
+        gameOverDiv.style.display = 'none';
+        gameOverDiv.style.justifyContent = 'center';
+        gameOverDiv.style.alignItems = 'center';
+        gameOverDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        gameOverDiv.style.color = 'white';
+        gameOverDiv.style.fontSize = '72px';
+        gameOverDiv.style.fontWeight = 'bold';
+        gameOverDiv.style.fontFamily = 'Arial, sans-serif';
+        gameOverDiv.style.zIndex = '2000';
+        gameOverDiv.textContent = 'GAME OVER';
+        
+        // Add restart button
+        const restartButton = document.createElement('button');
+        restartButton.textContent = 'Play Again';
+        restartButton.style.position = 'relative';
+        restartButton.style.top = '50px';
+        restartButton.style.padding = '15px 30px';
+        restartButton.style.fontSize = '24px';
+        restartButton.style.backgroundColor = '#4CAF50';
+        restartButton.style.border = 'none';
+        restartButton.style.borderRadius = '5px';
+        restartButton.style.color = 'white';
+        restartButton.style.cursor = 'pointer';
+        restartButton.onclick = () => this.restartGame();
+        
+        gameOverDiv.appendChild(document.createElement('br'));
+        gameOverDiv.appendChild(restartButton);
+        document.body.appendChild(gameOverDiv);
+        this.gameOverDisplay = gameOverDiv;
+    }
+
+    updateLives() {
+        if (this.lives > 0) {
+            this.lives--;
+            // Update the heart image (starting from the leftmost heart)
+            this.hearts[this.lives].src = 'emptyheart.png'; // You'll need to provide this
+            
+            if (this.lives === 0) {
+                this.endGame();
+            }
+        }
+    }
+
+    endGame() {
+        this.gameOver = true;
+        this.gameOverDisplay.style.display = 'flex';
+    }
+
+    restartGame() {
+        this.lives = 3;
+        this.gameOver = false;
+        // Reset hearts
+        this.hearts.forEach(heart => {
+            heart.src = 'fullheart.jpg';
+        });
+        // Reset ball position
+        this.resetBall();
+        // Hide game over display
+        this.gameOverDisplay.style.display = 'none';
+    }
+
+    showScore(isGoal) {
+        if (this.gameOver) return;
+        
+        this.scoreDisplay.textContent = isGoal ? 'GOALLLLL' : 'NO GOAL';
+        this.scoreDisplay.style.opacity = '1';
+        this.scoreDisplay.style.display = 'block';
+        this.scoreDisplay.style.color = isGoal ? '#00ff00' : '#ff0000';
+        
+        if (!isGoal) {
+            this.updateLives();
+        }
+        
+        setTimeout(() => {
+            this.scoreDisplay.style.opacity = '0';
+            setTimeout(() => {
+                this.scoreDisplay.style.display = 'none';
+            }, 300);
+        }, 1700);
+    }
 }
 
 
 class GameController {
     constructor(sceneManager, gameElements) {
         this.sceneManager = sceneManager;
-        this.gameElements = gameElements;
         this.isMoving = false;
         this.targetPosition = new THREE.Vector3();
         this.canShoot = true;
@@ -246,6 +365,7 @@ class GameController {
         this.mousePlaneZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 400);
         this.intersectionPoint = new THREE.Vector3();
         this.setupEventListeners();
+        this.gameElements = gameElements;
     }
 
     setupEventListeners() {
@@ -288,6 +408,7 @@ class GameController {
     }
 
     handleInputStart(clientX, clientY) {
+        if (this.gameElements.gameOver) return;
         if (!this.isMoving && this.canShoot) {
             this.mouse.x = (clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(clientY / window.innerHeight) * 2 + 1;
@@ -302,6 +423,7 @@ class GameController {
     }
 
     handleInputMove(clientX, clientY) {
+        if (this.gameElements.gameOver) return;
         if (this.isDragging) {
             this.mouse.x = (clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(clientY / window.innerHeight) * 2 + 1;
@@ -309,6 +431,7 @@ class GameController {
     }
 
     handleInputEnd(clientX, clientY) {
+        if (this.gameElements.gameOver) return;
         if (this.isDragging) {
             this.mouse.x = (clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(clientY / window.innerHeight) * 2 + 1;
@@ -335,6 +458,7 @@ class GameController {
     }
 
     update() {
+        if (this.gameElements.gameOver) return;
         if (this.isMoving) {
             const ball = this.gameElements.ball;
             const speed = 0.05;
