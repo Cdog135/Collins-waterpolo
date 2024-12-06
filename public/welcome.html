@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Water Polo Goal Game - Welcome</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #87CEEB 0%, #4169E1 100%);
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,229.3C384,235,480,213,576,186.7C672,160,768,128,864,138.7C960,149,1056,203,1152,218.7C1248,235,1344,213,1392,202.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
+            background-size: 1000px 100px;
+            animation: wave 10s linear infinite;
+        }
+        @keyframes wave {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1000px; }
+        }
+        .ball-hover {
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .ball-hover:hover {
+            transform: scale(1.1) rotate(10deg);
+            filter: brightness(1.2);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center text-white relative">
+    <!-- Main Content -->
+    <div class="z-10 text-center px-4">
+        <h1 class="text-5xl font-bold mb-6 drop-shadow-lg">Water Polo Goal</h1>
+        
+        <!-- Interactive Ball -->
+        <div class="mb-8 flex justify-center">
+            <svg class="w-48 h-48 ball-hover cursor-pointer" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" onclick="startGame()">
+                <circle cx="50" cy="50" r="45" fill="#FFFFFF" stroke="#4169E1" stroke-width="3"/>
+                <path d="M25,35 Q50,20 75,35" stroke="#4169E1" fill="none" stroke-width="3"/>
+                <path d="M25,65 Q50,50 75,65" stroke="#4169E1" fill="none" stroke-width="3"/>
+                <circle cx="50" cy="75" r="5" fill="#4169E1"/>
+            </svg>
+        </div>
+        
+        <!-- Start Game Button -->
+        <a href= "index.html" class="inline-block bg-white text-blue-600 px-8 py-3 rounded-full font-bold 
+        hover:bg-blue-100 transition duration-300 ease-in-out transform hover:scale-105 
+        focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-lg">
+            Start Game
+        </a>
+        
+        <p class="mt-4 text-sm opacity-75">Drag or touch the ball and release inside the goal to shoot!</p>
+    </div>
+    
+    <!-- Waves -->
+    <div class="wave"></div>
+</body>
+</html>
