@@ -8,9 +8,24 @@
 </head>
 <body>
     <div id="instructions">Drag or touch the ball and release inside the goal to shoot</div>
+    <audio id="background-audio" loop>
+        <source src="gametheme.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
     <!-- Load Three.js first -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
     <!-- Load our game -->
     <script type="module" src="./Game.js"></script>
+
+    <script>
+        // Wait for user interaction to play the audio
+        document.addEventListener('click', () => {
+            const audio = document.getElementById('background-audio');
+            if (audio.paused) {
+                audio.play().catch(error => console.error('Audio playback failed:', error));
+            }
+        }, { once: true }); // Trigger the listener only once
+    </script>
 </body>
 </html>
